@@ -12,10 +12,12 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "firebase-admin": "^5.2.1",
+    "locutus": "^2.0.9",
     "nightmare": "^2.10.0",
     "yargs": "^9.0.1"
   },
   "devDependencies": {
+    "@types/locutus": "0.0.5",
     "@types/nightmare": "^1.6.36",
     "typescript": "^2.5.2"
   }

@@ -1,0 +1,3 @@
+[submodule "src/nightmare"]
+	path = src/nightmare
+	url = https://github.com/thruthesky/nightmare
