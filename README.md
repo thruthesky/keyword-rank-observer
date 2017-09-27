@@ -1,11 +1,9 @@
-# keyword-rank-observer
-
-
+# 키워드 랭킹 기록 크론
 
 
 # 크론에 등록
 
-## 데스크톱 검색어 랭킹 로드
+## 네이버 데스크톱 검색어 랭킹 로그 크론
 
 * 매 5 분 마다 화상영어 키워드와 어린이영어 키워드에 대한 랭킹을 기록한다.
 
@@ -14,9 +12,16 @@
 */5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.desktop.js --keyword=어린이영어
 ````
 
+## 네이버 모바일 검색어 랭킹 로그 크론
 
+````
+*/5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.mobile.js --keyword=화상영어
+*/5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.mobile.js --keyword=어린이영어
+````
 
 # 네이버 키워드 검색 결과 DOM 구조
+
+
 
 # DB 키워드 랭크 로그 구조
 
