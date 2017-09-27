@@ -1,7 +1,5 @@
 import { MyNightmare as Nightmare } from './../nightmare';
 
-
-
 import * as admin from 'firebase-admin';
 import serviceAccount from "../service-key";
 const app = admin.initializeApp({
@@ -27,7 +25,6 @@ class Naver extends Nightmare {
         let ref = db.child('kin').child(key)
         ref.set({count: count});
 
-
         let rank = [];
         for( let i = 0; i < count; i ++ ) {
             let $li = $lis.eq(i);
@@ -50,9 +47,6 @@ class Naver extends Nightmare {
 
         ref.update({rank: rank});
         
-        
-
-
     }
 
 
