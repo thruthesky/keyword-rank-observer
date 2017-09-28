@@ -1,41 +1,33 @@
 # 키워드 랭킹 기록 크론
 
 
-# 크론 등록 - MacOS
+# 키워드 랭킹 기록
 
 ## 기본 사용법
-네이버, 다음, 구글 등 각각 사이트마다 데스크롭과 모바일 검색 결과 표시가 틀리므로 각 사이트마다 따로 소스 코드가 작성되어야한다.
-일반적으로 `--keyword=xxxx` 옵션을 주고 실행하면, 검색 랭크 순위가 Firebase Database 에 기록된다.
 
-## 활용을 하는 방법은 Angular+Electron 을 통해서 한다.
+* keyword-rank-observer 프로그램이 로그를 기록한다.
 
-* 어차피 전문적으로 모니터링을 하려면 모니터링 프로그램이 따로 있어야 한다. Push message 에 의존 할 수 없다.
+* 네이버, 다음, 구글 등 각각 사이트마다 데스크롭과 모바일 검색 결과 표시가 틀리므로 각 사이트마다 따로 소스 코드가 작성되어야한다.
+
+* 키워드는 Firebase sonub project 에서 직접 수동으로 입력한다. 이렇게 하면 cralwer 가 Firebase 의 키워드를 다운로드해서, 랭크를 기록한다.
+
+* 결과를 보는 것은 ad-writer 에서 한다.
+  ( 어차피 전문적으로 모니터링을 하려면 모니터링 프로그램이 따로 있어야 한다. 웹/앱의 Push message 에 의존 할 수 없다. )
 
 
-## 네이버 데스크톱 검색어 랭킹 로그 크론
+### 크론 실행 - Windows
 
-* 매 5 분 마다 화상영어 키워드와 어린이영어 키워드에 대한 랭킹을 기록한다.
+맥북의 크론으로 실행해도 되지만, 비싼 맥북을 사용하느니, 고물 윈도우즈에서 node-cron 으로 실행한다.
 
+예제) 윈도우즈 실행. 경로에 주의 한다.
 ````
-*/5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.desktop.js --keyword=화상영어
-*/5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.desktop.js --keyword=어린이영어
+C:\work\keyword-rank-observer> node dist\cron\naver.js
+````
+예제) 맥북. 경로 주의.
+````
+$ node dist/cron/naver.js
 ````
 
-## 네이버 모바일 검색어 랭킹 로그 크론
-
-````
-*/5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.mobile.js --keyword=화상영어
-*/5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.mobile.js --keyword=어린이영어
-````
-
-# 크론 등록 - Windows
-
-node-cron 으로 실행한다.
-
-
-````
-> node dist\cron\naver.js
-````
 
 # 네이버 키워드 검색 결과 DOM 구조
 

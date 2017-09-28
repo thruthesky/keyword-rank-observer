@@ -6,7 +6,7 @@ const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://" + serviceAccount.project_id + ".firebaseio.com"
 });
-const db = app.database().ref();
+const db = app.database().ref().child('adv');
 
 class NaverDesktop extends Nightmare {
     constructor(defaultOptions) {
@@ -15,12 +15,31 @@ class NaverDesktop extends Nightmare {
     }
 
     async main() {
+        let date = this.date('Y-m-d H:i:s');
+        console.log("naver.kin.desktop.js begins at: " + date);
 
-        let keyword = this.argv.keyword;
+
+        
+        let re = await db.child('keyword').child('naver-kin-desktop').once('value');
+        let keywords = re.val();
+        if ( ! keywords ) {
+            console.log("No keyword on firebase.");
+            return;
+        }
+        for ( let k of Object.keys( keywords ) ) {
+            console.log("Searching for Desktop keyword: ", k);
+            await this.crawl( k );
+        }
+
+        await this.end().then( () => {} );
+        this._exit();
+
+    }
+    async crawl( keyword ) {
         if ( ! keyword ) this._exit("Please input keyword");
         let ms = (new Date).getTime();
         let key = this.date('Y-m-d-H-i', Math.round(ms / 1000) );
-        let ref = db.child('adv').child('kin').child('desktop').child(keyword).child(key);
+        let ref = db.child('keyword-rank-naver').child('desktop').child(keyword).child(key);
         await ref.set({ time: ms });
 
         await this.get('http://www.naver.com');
@@ -28,7 +47,8 @@ class NaverDesktop extends Nightmare {
         let $html = await this.getHtml();
         let $lis = $html.find('._kinBase > ul > li');
         let count = $lis.length;
-        // console.log("lis: ", count);
+        
+        console.log(`No. of results: ${count}, keyword : ${keyword}`);
         
         await ref.update({ count: count });
 
@@ -53,10 +73,9 @@ class NaverDesktop extends Nightmare {
 
         await ref.update({ rank: rank });
 
-        // console.log("done");
+        console.log(`Desktop Keyword Rank Log Done for ${keyword}`);
 
-        await this.end().then( () => {} );
-        this._exit();
+        
 
     }
 

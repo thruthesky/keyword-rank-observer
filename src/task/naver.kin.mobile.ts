@@ -6,7 +6,7 @@ const app = admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: "https://" + serviceAccount.project_id + ".firebaseio.com"
 });
-const db = app.database().ref();
+const db = app.database().ref().child('adv');
 
 class NaverMobile extends Nightmare {
     constructor(defaultOptions) {
@@ -16,11 +16,33 @@ class NaverMobile extends Nightmare {
 
     async main() {
 
-        let keyword = this.argv.keyword;
+        let date = this.date('Y-m-d H:i:s');
+        console.log("naver.kin.mobile.js begins at: " + date);
+
+
+        // TEST
+        // await this.crawl('필리핀여행');
+
+
+        let re = await db.child('keyword').child('naver-kin-mobile').once('value');
+        let keywords = re.val();
+        if ( ! keywords ) return;
+        for ( let k of Object.keys( keywords ) ) {
+            console.log("Searching for Mobile keyword: ", k);
+            await this.crawl( k );
+        }
+
+        await this.end().then( () => {} );
+        this._exit();
+
+    }
+
+    async crawl( keyword ) {
+
         if ( ! keyword ) this._exit("Please input keyword");
         let ms = (new Date).getTime();
         let key = this.date('Y-m-d-H-i', Math.round(ms / 1000) );
-        let ref = db.child('adv').child('kin').child('mobile').child(keyword).child(key);
+        let ref = db.child('keyword-rank-naver').child('mobile').child(keyword).child(key);
         await ref.set({ time: ms });
 
         await this.get('https://m.naver.com/');
@@ -28,10 +50,10 @@ class NaverMobile extends Nightmare {
         await this.typeEnterWait('input[name="query"]', keyword, '.sc.sp_ntotal');
         let $html = await this.getHtml();
         // console.log(" count: ", $html.find('.sc.sp_ntotal').length);
-        let $lis = $html.find('.sc.sp_ntotal ul > li');
+        let $lis = $html.find('.sc.sp_ntotal > .api_subject_bx > ul.lst_total > li.bx');
 
         let count = $lis.length;
-        // console.log("lis: ", count);
+        console.log(`No. of results: ${count}, keyword : ${keyword}`);
         
         await ref.update({ count: count });
 
@@ -53,10 +75,11 @@ class NaverMobile extends Nightmare {
             rank.push(data);
         }
 
-        
+        // console.log("rank: ", rank);
 
         for (let i = 0; i < rank.length; i++) {
-            if ( rank[i]['type'] == 'blog' ) continue;
+            if ( rank[i]['type'] != 'kin' ) continue;
+            console.log(`i: ${i}, type: ${rank[i].type}`)
             $html = await this.get(rank[i].href);
             let $answers = $html.find("a.button_friend");
             let names = [];
@@ -68,12 +91,7 @@ class NaverMobile extends Nightmare {
         }
 
         await ref.update({ rank: rank });
-
-        // console.log("done");
-
-        await this.end().then( () => {} );
-        this._exit();
-
+        console.log(`Mobile Keyword Rank Log Done for ${keyword}`);
     }
 
 }
