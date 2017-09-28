@@ -1,7 +1,7 @@
 # 키워드 랭킹 기록 크론
 
 
-# 크론에 등록
+# 크론 등록 - MacOS
 
 ## 네이버 데스크톱 검색어 랭킹 로그 크론
 
@@ -17,6 +17,15 @@
 ````
 */5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.mobile.js --keyword=화상영어
 */5 * * * * cd ~/node/rank; /usr/local/bin/node dist/task/naver.kin.mobile.js --keyword=어린이영어
+````
+
+# 크론 등록 - Windows
+
+node-cron 으로 실행한다.
+
+
+````
+> node dist\cron\naver.js
 ````
 
 # 네이버 키워드 검색 결과 DOM 구조
