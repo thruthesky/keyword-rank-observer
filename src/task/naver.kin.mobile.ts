@@ -43,7 +43,9 @@ class NaverMobile extends Nightmare {
         let ms = (new Date).getTime();
         let key = this.date('Y-m-d-H-i', Math.round(ms / 1000) );
         let ref = db.child('keyword-rank-naver').child('mobile').child(keyword).child(key);
-        await ref.set({ time: ms });
+        let data = { time: ms };
+
+        
 
         await this.get('https://m.naver.com/');
 
@@ -55,7 +57,8 @@ class NaverMobile extends Nightmare {
         let count = $lis.length;
         console.log(`No. of results: ${count}, keyword : ${keyword}`);
         
-        await ref.update({ count: count });
+        data['count'] = count;
+        
 
         let rank = [];
         for (let i = 0; i < count; i++) {
@@ -90,7 +93,8 @@ class NaverMobile extends Nightmare {
             rank[i]['names'] = names;
         }
 
-        await ref.update({ rank: rank });
+        data['rank'] = rank;
+        await ref.set( data );
         console.log(`Mobile Keyword Rank Log Done for ${keyword}`);
     }
 

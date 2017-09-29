@@ -17,5 +17,4 @@ new CronJob('00 */5 * * * *', function () {
   mobile.stderr.on('data', (data) => {
     console.log(`${data}`);
   });
-  
 }, null, true, 'Asia/Seoul');

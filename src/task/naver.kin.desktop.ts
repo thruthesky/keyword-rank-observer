@@ -40,7 +40,9 @@ class NaverDesktop extends Nightmare {
         let ms = (new Date).getTime();
         let key = this.date('Y-m-d-H-i', Math.round(ms / 1000) );
         let ref = db.child('keyword-rank-naver').child('desktop').child(keyword).child(key);
-        await ref.set({ time: ms });
+        
+        let data = { time: ms };
+
 
         await this.get('http://www.naver.com');
         await this.typeEnterWait('input[name="query"]', keyword, '._kinBase');
@@ -50,7 +52,8 @@ class NaverDesktop extends Nightmare {
         
         console.log(`No. of results: ${count}, keyword : ${keyword}`);
         
-        await ref.update({ count: count });
+        
+        data['count'] = count;
 
         let rank = [];
         for (let i = 0; i < count; i++) {
@@ -71,9 +74,10 @@ class NaverDesktop extends Nightmare {
             rank[i]['names'] = names;
         }
 
-        await ref.update({ rank: rank });
+        data['rank'] = rank;
+        await ref.set(data);
 
-        console.log(`Desktop Keyword Rank Log Done for ${keyword}`);
+        console.log(`! Desktop Keyword Rank Log Done for ${keyword}`);
 
         
 
