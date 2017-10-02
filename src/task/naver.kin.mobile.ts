@@ -102,7 +102,7 @@ class NaverMobile extends Nightmare {
 
         var options = {
             method: 'POST',
-            uri: 'http://work.org/keyword-rank-observer-server/',
+            uri: 'http://keyword-rank-observer-server.sonub.com/',
             qs: data,
             json: true // Automatically stringifies the body to JSON
         };
