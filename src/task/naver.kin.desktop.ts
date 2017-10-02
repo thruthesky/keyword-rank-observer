@@ -1,4 +1,7 @@
 import { MyNightmare as Nightmare } from './../nightmare/nightmare';
+var rpn = require('request-promise-native');
+const http_build_query = require('locutus/php/url/http_build_query');
+
 
 import * as admin from 'firebase-admin';
 import serviceAccount from "../service-key";
@@ -15,32 +18,31 @@ class NaverDesktop extends Nightmare {
     }
 
     async main() {
+
         let date = this.date('Y-m-d H:i:s');
         console.log("naver.kin.desktop.js begins at: " + date);
 
 
-        
         let re = await db.child('keyword').child('naver-kin-desktop').once('value');
         let keywords = re.val();
-        if ( ! keywords ) {
+        if (!keywords) {
             console.log("No keyword on firebase.");
             return;
         }
-        for ( let k of Object.keys( keywords ) ) {
+        for (let k of Object.keys(keywords)) {
             console.log("Searching for Desktop keyword: ", k);
-            await this.crawl( k );
+            await this.crawl(k);
         }
 
-        await this.end().then( () => {} );
+        await this.end().then(() => { });
         this._exit();
 
     }
-    async crawl( keyword ) {
-        if ( ! keyword ) this._exit("Please input keyword");
+    async crawl(keyword) {
+        if (!keyword) this._exit("Please input keyword");
         let ms = (new Date).getTime();
-        let key = this.date('Y-m-d-H-i', Math.round(ms / 1000) );
-        let ref = db.child('keyword-rank-naver').child('desktop').child(keyword).child(key);
-        
+        let date = this.date('Y-m-d-H-i', Math.round(ms / 1000));
+
         let data = { time: ms };
 
 
@@ -49,11 +51,14 @@ class NaverDesktop extends Nightmare {
         let $html = await this.getHtml();
         let $lis = $html.find('._kinBase > ul > li');
         let count = $lis.length;
-        
+
         console.log(`No. of results: ${count}, keyword : ${keyword}`);
-        
-        
+
+
+        data['platform'] = 'desktop';
+        data['keyword'] = keyword;
         data['count'] = count;
+
 
         let rank = [];
         for (let i = 0; i < count; i++) {
@@ -72,14 +77,31 @@ class NaverDesktop extends Nightmare {
                 names.push($name.text());
             }
             rank[i]['names'] = names;
+            console.log(`Got ${i}st answer.`);
         }
 
         data['rank'] = rank;
-        await ref.set(data);
+
+
+        var options = {
+            method: 'POST',
+            uri: 'http://work.org/keyword-rank-observer-server/',
+            qs: data,
+            json: true // Automatically stringifies the body to JSON
+        };
+        
+        // console.log( 'qs: ', http_build_query(data));
+
+        await rpn(options)
+            .then(function (body) {
+                // POST succeeded...
+                console.log('body: ', body);
+            })
+            .catch(function (err) {
+                // POST failed...
+            });
 
         console.log(`! Desktop Keyword Rank Log Done for ${keyword}`);
-
-        
 
     }
 
@@ -91,3 +113,5 @@ let defaultOptions = {
     openDevTools: { mode: '' },
 };
 (new NaverDesktop(defaultOptions)).main();
+
+// new NaverDesktop(null);

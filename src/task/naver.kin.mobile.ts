@@ -1,4 +1,7 @@
 import { MyNightmare as Nightmare } from './../nightmare/nightmare';
+var rpn = require('request-promise-native');
+const http_build_query = require('locutus/php/url/http_build_query');
+
 
 import * as admin from 'firebase-admin';
 import serviceAccount from "../service-key";
@@ -20,32 +23,30 @@ class NaverMobile extends Nightmare {
         console.log("naver.kin.mobile.js begins at: " + date);
 
 
-        // TEST
-        // await this.crawl('필리핀여행');
-
-
         let re = await db.child('keyword').child('naver-kin-mobile').once('value');
         let keywords = re.val();
-        if ( ! keywords ) return;
-        for ( let k of Object.keys( keywords ) ) {
+        if (!keywords) {
+            console.log("No keyword on firebase.");
+            return;
+        }
+        for (let k of Object.keys(keywords)) {
             console.log("Searching for Mobile keyword: ", k);
-            await this.crawl( k );
+            await this.crawl(k);
         }
 
-        await this.end().then( () => {} );
+        await this.end().then(() => { });
         this._exit();
 
     }
 
-    async crawl( keyword ) {
+    async crawl(keyword) {
 
-        if ( ! keyword ) this._exit("Please input keyword");
+        if (!keyword) this._exit("Please input keyword");
         let ms = (new Date).getTime();
-        let key = this.date('Y-m-d-H-i', Math.round(ms / 1000) );
-        let ref = db.child('keyword-rank-naver').child('mobile').child(keyword).child(key);
+        let date = this.date('Y-m-d-H-i', Math.round(ms / 1000));
+
         let data = { time: ms };
 
-        
 
         await this.get('https://m.naver.com/');
 
@@ -56,9 +57,12 @@ class NaverMobile extends Nightmare {
 
         let count = $lis.length;
         console.log(`No. of results: ${count}, keyword : ${keyword}`);
-        
+
+
+        data['platform'] = 'mobile';
+        data['keyword'] = keyword;
         data['count'] = count;
-        
+
 
         let rank = [];
         for (let i = 0; i < count; i++) {
@@ -68,8 +72,8 @@ class NaverMobile extends Nightmare {
             data['title'] = $li.find('a').find('.total_tit').text();
             data['href'] = $li.find('a').prop('href');
             data['type'] = 'blog';
-            if ( $li.hasClass('type_kin') ) data['type'] = 'kin';
-            if ( data['type'] == 'blog' ) {
+            if ($li.hasClass('type_kin')) data['type'] = 'kin';
+            if (data['type'] == 'blog') {
                 data['name'] = $li.find('.sub_name').text();
             }
             else {
@@ -81,7 +85,7 @@ class NaverMobile extends Nightmare {
         // console.log("rank: ", rank);
 
         for (let i = 0; i < rank.length; i++) {
-            if ( rank[i]['type'] != 'kin' ) continue;
+            if (rank[i]['type'] != 'kin') continue;
             console.log(`i: ${i}, type: ${rank[i].type}`)
             $html = await this.get(rank[i].href);
             let $answers = $html.find("a.button_friend");
@@ -94,7 +98,26 @@ class NaverMobile extends Nightmare {
         }
 
         data['rank'] = rank;
-        await ref.set( data );
+
+
+        var options = {
+            method: 'POST',
+            uri: 'http://work.org/keyword-rank-observer-server/',
+            qs: data,
+            json: true // Automatically stringifies the body to JSON
+        };
+        
+        // console.log( 'qs: ', http_build_query(data));
+
+        await rpn(options)
+            .then(function (body) {
+                // POST succeeded...
+                console.log('body: ', body);
+            })
+            .catch(function (err) {
+                // POST failed...
+            });
+
         console.log(`Mobile Keyword Rank Log Done for ${keyword}`);
     }
 
