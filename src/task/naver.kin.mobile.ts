@@ -142,6 +142,8 @@ let defaultOptions = {
     console.log("Program is using " + heapUsed + " bytes of Heap.")
 
     global.gc();
+    heapUsed = process.memoryUsage().heapUsed;
     console.log("Program is using " + heapUsed + " bytes of Heap.")
 
+	process.exit(0);
 });

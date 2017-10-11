@@ -43,7 +43,6 @@ class NaverDesktop extends Nightmare {
         }
 
         await this.end().then(() => { });
-        this._exit();
 
     }
     async crawl(keyword) {
@@ -120,6 +119,17 @@ let defaultOptions = {
     x: 1024, y: 0, width: 640, height: 700,
     openDevTools: { mode: '' },
 };
-(new NaverDesktop(defaultOptions)).main();
+(new NaverDesktop(defaultOptions)).main(). then( re => {
+	xvfb.stopSync();
+	console.log("process completed!");
+    var heapUsed = process.memoryUsage().heapUsed;
+    console.log("Program is using " + heapUsed + " bytes of Heap.")
 
-// new NaverDesktop(null);
+    global.gc();
+    heapUsed = process.memoryUsage().heapUsed;
+    console.log("Program is using " + heapUsed + " bytes of Heap.")
+
+	process.exit(0);
+
+});
+
