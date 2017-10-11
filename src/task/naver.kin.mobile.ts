@@ -111,7 +111,7 @@ class NaverMobile extends Nightmare {
             qs: data,
             json: true // Automatically stringifies the body to JSON
         };
-        
+
         // console.log( 'qs: ', http_build_query(data));
 
         await rpn(options)
@@ -133,4 +133,15 @@ let defaultOptions = {
     x: 1024, y: 0, width: 640, height: 700,
     openDevTools: { mode: '' },
 };
-(new NaverMobile(defaultOptions)).main();
+(new NaverMobile(defaultOptions)).main().then(re => {
+
+    xvfb.stopSync();
+    console.log("process completed!");
+
+    var heapUsed = process.memoryUsage().heapUsed;
+    console.log("Program is using " + heapUsed + " bytes of Heap.")
+
+    global.gc();
+    console.log("Program is using " + heapUsed + " bytes of Heap.")
+
+});
