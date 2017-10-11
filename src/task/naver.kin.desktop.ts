@@ -11,6 +11,14 @@ const app = admin.initializeApp({
 });
 const db = app.database().ref().child('adv');
 
+
+var Xvfb = require('xvfb');
+var xvfb = new Xvfb({
+  silent: true
+});
+xvfb.startSync();
+
+
 class NaverDesktop extends Nightmare {
     constructor(defaultOptions) {
         super(defaultOptions);

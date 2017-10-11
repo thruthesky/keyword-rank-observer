@@ -11,6 +11,12 @@ const app = admin.initializeApp({
 });
 const db = app.database().ref().child('adv');
 
+var Xvfb = require('xvfb');
+var xvfb = new Xvfb({
+  silent: true
+});
+xvfb.startSync();
+
 class NaverMobile extends Nightmare {
     constructor(defaultOptions) {
         super(defaultOptions);
@@ -35,7 +41,6 @@ class NaverMobile extends Nightmare {
         }
 
         await this.end().then(() => { });
-        this._exit();
 
     }
 
